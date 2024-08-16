@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draggable and Zoomable Image</title>
+<style>
+  #zoom-container {
+    overflow: hidden;
+    /* background: red; */
+    height: 100vh;
+    width: 100%;
+    position: relative; /* Make sure this is relative for absolute positioning of image */
+  }
+
+  #zoom img {
+    cursor: grab;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.2s; /* Smooth zoom transition */
+  }
+</style>
+</head>
+<body>
+  <div id="zoom-container">
+    <img id="zoom-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Cordillera_de_los_Andes.jpg/1024px-Cordillera_de_los_Andes.jpg" alt="Zoomable Image" />
+  </div>
+
+  <script>
+    var zoomer = (function () {
+      var img_ele = null,
+        x_cursor = 0,
+        y_cursor = 0,
+        x_img_ele = 0,
+        y_img_ele = 0,
+        zoom_factor = 1.0;
+
+      return {
+        zoom: function (zoomincrement) {
+          img_ele = document.getElementById('zoom-img');
+          zoom_factor += zoomincrement;
+          zoom_factor = Math.max(0.1, zoom_factor); // Minimum zoom level
+          zoom_factor = Math.min(10, zoom_factor); // Maximum zoom level
+
+          img_ele.style.transform = `scale(${zoom_factor})`;
+
+          // Optional: Adjust image position to keep it centered or within bounds
+          const rect = img_ele.getBoundingClientRect();
+          const containerRect = document.getElementById('zoom-container').getBoundingClientRect();
+          const offsetX = (containerRect.width - rect.width) / 2;
+          const offsetY = (containerRect.height - rect.height) / 2;
+
+          img_ele.style.left = `${offsetX}px`;
+          img_ele.style.top = `${offsetY}px`;
+
+          img_ele = null;
+        },
+
+        start_drag: function (e) {
+          e.preventDefault();
+          if (zoom_factor <= 1.0) return;
+
+          img_ele = document.getElementById('zoom-img');
+          x_img_ele = e.clientX - img_ele.offsetLeft;
+          y_img_ele = e.clientY - img_ele.offsetTop;
+
+          img_ele.style.cursor = 'grabbing';
+        },
+
+        stop_drag: function () {
+          if (img_ele !== null) {
+            img_ele.style.cursor = 'grab';
+          }
+          img_ele = null;
+        },
+
+        while_drag: function (e) {
+          if (img_ele !== null) {
+            var x_cursor = e.clientX;
+            var y_cursor = e.clientY;
+            var new_left = x_cursor - x_img_ele;
+            var new_top = y_cursor - y_img_ele;
+
+            img_ele.style.left = `${new_left}px`;
+            img_ele.style.top = `${new_top}px`;
+          }
+        }
+      };
+    })();
+
+    // Mouse wheel zoom handling
+    document.getElementById('zoom-container').addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var zoomincrement = e.deltaY > 0 ? -0.1 : 0.1;
+      zoomer.zoom(zoomincrement);
+    });
+
+    document.getElementById('zoom-img').addEventListener('mousedown', zoomer.start_drag);
+    document.getElementById('zoom-container').addEventListener('mousemove', zoomer.while_drag);
+    document.getElementById('zoom-container').addEventListener('mouseup', zoomer.stop_drag);
+    document.getElementById('zoom-container').addEventListener('mouseleave', zoomer.stop_drag);
+  </script>
+</body>
+</html>
