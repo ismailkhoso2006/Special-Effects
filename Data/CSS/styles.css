@@ -4,23 +4,27 @@ body{
 
 .zoom-container {
     width: 100%;
-    height: 90vh;
-    margin-top: 20px;
     border: 1px solid black;
     border-radius: 16px;
     background: rgba(223,201,179,255);
     overflow: hidden !important;
-    /*transform-origin: center center;
-    */transition: transform 0.1s ease-in-out;
-    -webkit-border-radius: 16px;
-    -moz-border-radius: 16px;
-    -ms-border-radius: 16px;
-    -o-border-radius: 16px;
+   transition: transform 0.1s ease-in-out;
 }
   
 #cursorImage{
     width: 100%;
+    cursor: grab;
 
   }
   
+  .wraper{
+    padding: 10px 100px;
+  }
+
+  @media (max-width: 769px){
+    .wraper{
+        padding: 10px 40px;
+      }
+    
+  }
   
